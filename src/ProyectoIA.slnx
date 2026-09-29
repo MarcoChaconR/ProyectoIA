@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="../tests/ProyectoIA.E2ETests/ProyectoIA.E2ETests.csproj" />
+  <Project Path="ProyectoIA.Domain/ProyectoIA.Domain.csproj" />
+  <Project Path="ProyectoIA.Infrastructure/ProyectoIA.Infrastructure.csproj" />
+  <Project Path="ProyectoIA.Web/ProyectoIA.Web.csproj" />
+</Solution>

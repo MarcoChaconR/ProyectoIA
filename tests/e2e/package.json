@@ -1,0 +1,13 @@
+{
+  "name": "proyectoia-e2e",
+  "version": "1.0.0",
+  "description": "Pruebas de interfaz (E2E) del Sistema de Gestión de Solicitudes, con Playwright.",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "codegen": "playwright codegen http://localhost:5212"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}

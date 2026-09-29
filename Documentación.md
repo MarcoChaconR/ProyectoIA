@@ -457,3 +457,45 @@ Este documento consolida la información inicialmente separada en:
 3. Confirmar alcance final del MVP.
 4. Iniciar especificación técnica detallada por módulo.
 5. Planificar primer sprint de implementación.
+
+---
+
+## 19. Replan MVP Didáctico (para habilitar pruebas Playwright)
+
+Motivación: se requiere una versión funcional mínima navegable para ejecutar pruebas E2E con Playwright, antes de cerrar formalmente todas las ambigüedades de negocio (sección 13). Se toman **supuestos temporales** para desbloquear el desarrollo; no reemplazan las decisiones de negocio pendientes.
+
+### 19.1 Stack técnico simplificado
+
+- ASP.NET Core MVC + Razor Views (server-rendered, sin SPA) — más estable para locators de Playwright.
+- EF Core + SQLite, con migraciones y datos sembrados (seed) para pruebas deterministas.
+- Autenticación por cookie simple con 3 usuarios sembrados (admin, tecnico, cliente), sin ASP.NET Identity completo.
+- Arquitectura pragmática de 3 proyectos: `ProyectoIA.Domain`, `ProyectoIA.Infrastructure`, `ProyectoIA.Web`.
+- Pruebas E2E: proyecto `ProyectoIA.E2ETests` con Microsoft.Playwright + NUnit.
+
+### 19.2 Alcance funcional del MVP
+
+1. Login con usuarios sembrados por rol.
+2. Crear gestión (rol cliente).
+3. Listado de gestiones con filtro básico por estado, visibilidad según rol.
+4. Detalle de gestión + agregar nota (pública/interna).
+5. Cambiar estado (técnico/administrador) con transición lineal simple: Registrada → Asignada → En atención → Resuelta → Cerrada.
+6. Asignar técnico a una gestión (administrador).
+
+### 19.3 Fuera de alcance del MVP (se seedea o se pospone)
+
+- Dashboards e indicadores.
+- CRUD administrativo de usuarios/cecos/catálogos vía UI (se siembran por migración).
+- Detección de duplicados.
+- Notificaciones por correo.
+- Exportación a Excel/PDF.
+- UI de auditoría/bitácora (la tabla de bitácora puede existir en el modelo, sin pantalla dedicada).
+
+### 19.4 Supuestos temporales para el MVP
+
+- El cliente sí puede crear solicitudes.
+- Las notas internas son visibles solo para técnico y administrador.
+- No se permite reabrir gestiones cerradas en esta versión.
+- No se valida duplicados en esta versión.
+- Las transiciones de estado siguen un único camino lineal (sin bifurcaciones ni reglas condicionales por rol/tipo).
+
+Estos supuestos deben confirmarse o ajustarse al cerrar las ambigüedades formales de la sección 13.

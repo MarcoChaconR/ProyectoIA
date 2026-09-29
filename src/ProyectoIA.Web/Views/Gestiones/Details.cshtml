@@ -1,0 +1,150 @@
+@model Gestion
+
+@{
+    ViewData["Title"] = $"Gestión #{Model.Id}";
+    var esCliente = ViewData["EsCliente"] as bool? ?? false;
+    var puedeAvanzar = ViewData["PuedeAvanzarEstado"] as bool? ?? false;
+    var esAdmin = ViewData["EsAdmin"] as bool? ?? false;
+    var notas = esCliente
+        ? Model.Notas.Where(n => n.EsPublica)
+        : (IEnumerable<NotaGestion>)Model.Notas;
+}
+
+<h1 class="mb-3">Gestión #@Model.Id</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Fecha</dt>
+            <dd class="col-sm-9">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</dd>
+
+            <dt class="col-sm-3">Estado</dt>
+            <dd class="col-sm-9"><span id="estado-actual">@Model.Estado</span></dd>
+
+            <dt class="col-sm-3">Centro de costo</dt>
+            <dd class="col-sm-9">@Model.Ceco?.Nombre</dd>
+
+            <dt class="col-sm-3">Dependencia</dt>
+            <dd class="col-sm-9">@Model.Dependencia?.Nombre</dd>
+
+            <dt class="col-sm-3">Tipo de solicitud</dt>
+            <dd class="col-sm-9">@Model.TipoSolicitud?.Nombre</dd>
+
+            <dt class="col-sm-3">Objetivo</dt>
+            <dd class="col-sm-9">@Model.Objetivo</dd>
+
+            <dt class="col-sm-3">Detalle</dt>
+            <dd class="col-sm-9">@Model.Detalle</dd>
+
+            <dt class="col-sm-3">Referencia</dt>
+            <dd class="col-sm-9">@(Model.ReferenciaIngreso ?? "—")</dd>
+
+            <dt class="col-sm-3">Solicitante</dt>
+            <dd class="col-sm-9">@Model.Solicitante?.Nombre</dd>
+
+            <dt class="col-sm-3">Técnico asignado</dt>
+            <dd class="col-sm-9">@(Model.TecnicoAsignado?.Nombre ?? "Sin asignar")</dd>
+
+            @if (Model.FechaAsignacion.HasValue)
+            {
+                <dt class="col-sm-3">Fecha asignación</dt>
+                <dd class="col-sm-9">@Model.FechaAsignacion.Value.ToString("dd/MM/yyyy HH:mm")</dd>
+            }
+        </dl>
+    </div>
+</div>
+
+@if (puedeAvanzar || esAdmin)
+{
+    <div class="card mb-4">
+        <div class="card-body d-flex gap-3 align-items-center flex-wrap">
+            @if (puedeAvanzar)
+            {
+                <form asp-action="CambiarEstado" asp-route-id="@Model.Id" method="post">
+                    <button id="btn-avanzar-estado" type="submit" class="btn btn-warning">Avanzar estado</button>
+                </form>
+            }
+
+            @if (esAdmin)
+            {
+                <form id="form-asignar-tecnico" asp-action="AsignarTecnico" asp-route-id="@Model.Id" method="post" class="d-flex gap-2 align-items-center">
+                    <label class="form-label mb-0" for="tecnicoId">Asignar técnico:</label>
+                    <select id="tecnicoId" name="tecnicoId" asp-items="ViewBag.Tecnicos" class="form-select"></select>
+                    <button id="btn-asignar-tecnico" type="submit" class="btn btn-primary">Asignar</button>
+                </form>
+            }
+        </div>
+    </div>
+}
+
+<div class="card mb-4">
+    <div class="card-header">Notas</div>
+    <div class="card-body">
+        @if (!notas.Any())
+        {
+            <p>Sin notas.</p>
+        }
+        else
+        {
+            <ul class="list-group mb-3">
+                @foreach (var nota in notas.OrderBy(n => n.Fecha))
+                {
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>@nota.Autor?.Nombre</strong>
+                            <small class="text-muted">@nota.Fecha.ToString("dd/MM/yyyy HH:mm")</small>
+                        </div>
+                        <div>@nota.Texto</div>
+                        @if (!nota.EsPublica)
+                        {
+                            <span class="badge bg-secondary">Interna</span>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+
+        <form id="form-agregar-nota" asp-action="AgregarNota" asp-route-id="@Model.Id" method="post">
+            <div class="mb-3">
+                <label for="Texto" class="form-label">Agregar nota</label>
+                <textarea id="texto-nota" name="Texto" class="form-control" rows="3"></textarea>
+            </div>
+
+            @if (!esCliente)
+            {
+                <div class="form-check mb-3">
+                    <input id="es-publica" class="form-check-input" type="checkbox" name="EsPublica" value="true" checked />
+                    <label class="form-check-label" for="es-publica">Nota pública (visible para el cliente)</label>
+                </div>
+            }
+
+            <button id="btn-agregar-nota" type="submit" class="btn btn-primary">Agregar nota</button>
+        </form>
+    </div>
+</div>
+
+@if (!esCliente && Model.Bitacora.Any())
+{
+    <div class="card mb-4">
+        <div class="card-header">Bitácora de cambios</div>
+        <ul class="list-group list-group-flush">
+            @foreach (var cambio in Model.Bitacora.OrderBy(b => b.Fecha))
+            {
+                <li class="list-group-item">
+                    <strong>@cambio.Accion</strong>
+                    @if (cambio.ValorAnterior is not null)
+                    {
+                        <text>@cambio.ValorAnterior → @cambio.ValorNuevo</text>
+                    }
+                    else
+                    {
+                        <text>@cambio.ValorNuevo</text>
+                    }
+                    <span class="text-muted">(@cambio.Autor?.Nombre, @cambio.Fecha.ToString("dd/MM/yyyy HH:mm"))</span>
+                </li>
+            }
+        </ul>
+    </div>
+}
+
+<a class="btn btn-secondary" asp-action="Index">Volver al listado</a>

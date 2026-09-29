@@ -1,0 +1,44 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    var returnUrl = (string?)ViewData["ReturnUrl"];
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <h1 class="mb-4">Iniciar sesión</h1>
+
+        <form id="login-form" asp-action="Login" asp-controller="Account" method="post">
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Correo" class="form-label"></label>
+                <input id="correo" asp-for="Correo" class="form-control" autocomplete="username" />
+                <span asp-validation-for="Correo" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input id="password" asp-for="Password" class="form-control" autocomplete="current-password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <button id="btn-login" type="submit" class="btn btn-primary w-100">Entrar</button>
+        </form>
+
+        <div class="mt-4 small text-muted">
+            <p class="mb-1"><strong>Usuarios de prueba:</strong></p>
+            <ul class="list-unstyled">
+                <li>Cliente: cliente@proyectoia.com / Cliente123!</li>
+                <li>Técnico: tecnico@proyectoia.com / Tecnico123!</li>
+                <li>Administrador: admin@proyectoia.com / Admin123!</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,25 @@
+# .NET
+bin/
+obj/
+*.user
+
+# SQLite
+*.db-shm
+*.db-wal
+
+# Node / Playwright
+node_modules/
+tests/e2e/test-results/
+tests/e2e/playwright-report/
+tests/e2e/playwright/.cache/
+tests/e2e/capturas/*.png
+
+# IDE
+.vs/
+.idea/
+
+# macOS
+.DS_Store
+
+# Entregables
+Entregable semana 5.zip

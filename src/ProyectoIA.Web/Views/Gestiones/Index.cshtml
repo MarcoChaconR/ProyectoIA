@@ -1,0 +1,64 @@
+@model GestionListViewModel
+
+@{
+    ViewData["Title"] = "Gestiones";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Gestiones</h1>
+    @if (User.IsInRole(nameof(Rol.Cliente)))
+    {
+        <a id="btn-crear-gestion" class="btn btn-primary" asp-action="Create">Crear gestión</a>
+    }
+</div>
+
+<form method="get" asp-action="Index" class="row g-2 align-items-end mb-4">
+    <div class="col-auto">
+        <label class="form-label" for="estado">Filtrar por estado</label>
+        <select id="estado" name="estado" class="form-select" onchange="this.form.submit()">
+            <option value="">Todos</option>
+            @foreach (var valor in Enum.GetValues<EstadoGestion>())
+            {
+                var seleccionado = Model.EstadoFiltro.HasValue && Model.EstadoFiltro.Value == valor;
+                <option value="@((int)valor)" selected="@seleccionado">@valor</option>
+            }
+        </select>
+    </div>
+</form>
+
+@if (!Model.Gestiones.Any())
+{
+    <p>No hay gestiones para mostrar.</p>
+}
+else
+{
+    <table id="tabla-gestiones" class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Fecha</th>
+                <th>Objetivo</th>
+                <th>Estado</th>
+                <th>Solicitante</th>
+                <th>Técnico</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var gestion in Model.Gestiones)
+            {
+                <tr>
+                    <td>@gestion.Id</td>
+                    <td>@gestion.Fecha.ToString("dd/MM/yyyy")</td>
+                    <td>@gestion.Objetivo</td>
+                    <td>@gestion.Estado</td>
+                    <td>@gestion.Solicitante?.Nombre</td>
+                    <td>@(gestion.TecnicoAsignado?.Nombre ?? "Sin asignar")</td>
+                    <td>
+                        <a id="ver-detalle-@gestion.Id" class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@gestion.Id">Ver detalle</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
