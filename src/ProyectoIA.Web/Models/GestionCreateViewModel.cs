@@ -4,15 +4,15 @@ namespace ProyectoIA.Web.Models;
 
 public class GestionCreateViewModel
 {
-    [Required(ErrorMessage = "El centro de costo es obligatorio.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Seleccione un centro de costo.")]
     [Display(Name = "Centro de costo")]
     public int CecoId { get; set; }
 
-    [Required(ErrorMessage = "La dependencia es obligatoria.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Seleccione una dependencia.")]
     [Display(Name = "Dependencia")]
     public int DependenciaId { get; set; }
 
-    [Required(ErrorMessage = "El tipo de solicitud es obligatorio.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Seleccione un tipo de solicitud.")]
     [Display(Name = "Tipo de solicitud")]
     public int TipoSolicitudId { get; set; }
 

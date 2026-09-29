@@ -2,6 +2,11 @@
     ViewData["Title"] = "Acceso denegado";
 }
 
-<h1>Acceso denegado</h1>
-<p>No tienes permisos para acceder a este recurso.</p>
-<a class="btn btn-primary" asp-controller="Gestiones" asp-action="Index">Volver al listado</a>
+<div class="estado-vacio">
+    <i class="bi bi-slash-circle text-danger" aria-hidden="true"></i>
+    <h1 class="h4">Acceso denegado</h1>
+    <p class="texto-lectura mx-auto mb-3">No tenés permisos para acceder a este recurso.</p>
+    <a class="btn btn-primary" asp-controller="Gestiones" asp-action="Index">
+        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Volver al listado
+    </a>
+</div>

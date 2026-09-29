@@ -1,0 +1,40 @@
+@model UsuarioFormViewModel
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Nuevo usuario" : "Editar usuario";
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+<div class="card">
+    <div class="card-body">
+        <form id="form-usuario" asp-action="Save" method="post">
+            <input asp-for="Id" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+            <div class="mb-3">
+                <label asp-for="Nombre" class="form-label"></label>
+                <input id="nombre-usuario" asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Correo" class="form-label"></label>
+                <input id="correo-usuario" asp-for="Correo" class="form-control" />
+                <span asp-validation-for="Correo" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input id="password-usuario" asp-for="Password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+                @if (Model.Id != 0)
+                {
+                    <div class="form-text">Dejá el campo vacío para conservar la contraseña actual.</div>
+                }
+            </div>
+            <div class="mb-3">
+                <label asp-for="Rol" class="form-label"></label>
+                <select id="rol-usuario" asp-for="Rol" asp-items="Html.GetEnumSelectList<Rol>()" class="form-select"></select>
+                <span asp-validation-for="Rol" class="text-danger"></span>
+            </div>
+            <button id="btn-guardar-usuario" type="submit" class="btn btn-primary">Guardar</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Cancelar</a>
+        </form>
+    </div>
+</div>

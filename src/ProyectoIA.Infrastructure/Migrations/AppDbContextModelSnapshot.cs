@@ -57,6 +57,9 @@ namespace ProyectoIA.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("Activo")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Codigo")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -67,19 +70,24 @@ namespace ProyectoIA.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Codigo")
+                        .IsUnique();
+
                     b.ToTable("Cecos");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Codigo = "CECO-001",
-                            Nombre = "Centro de Costo Principal"
+                            Activo = true,
+                            Codigo = "5550",
+                            Nombre = "Desarrollo de software"
                         },
                         new
                         {
                             Id = 2,
-                            Codigo = "CECO-002",
+                            Activo = true,
+                            Codigo = "5551",
                             Nombre = "Centro de Costo Secundario"
                         });
                 });
@@ -90,11 +98,19 @@ namespace ProyectoIA.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("Activa")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CecoId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CecoId");
 
                     b.ToTable("Dependencias");
 
@@ -102,11 +118,15 @@ namespace ProyectoIA.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
+                            Activa = true,
+                            CecoId = 1,
                             Nombre = "Operaciones"
                         },
                         new
                         {
                             Id = 2,
+                            Activa = true,
+                            CecoId = 2,
                             Nombre = "Finanzas"
                         });
                 });
@@ -143,6 +163,9 @@ namespace ProyectoIA.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Prioridad")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("ReferenciaIngreso")
                         .HasColumnType("TEXT");
 
@@ -153,6 +176,10 @@ namespace ProyectoIA.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("TipoSolicitudId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -180,9 +207,11 @@ namespace ProyectoIA.Infrastructure.Migrations
                             Fecha = new DateTime(2026, 9, 1, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             FechaCambioEstado = new DateTime(2026, 9, 1, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             Objetivo = "Automatizar conciliación bancaria",
+                            Prioridad = 2,
                             ReferenciaIngreso = "MEMO-001",
                             SolicitanteId = 3,
-                            TipoSolicitudId = 1
+                            TipoSolicitudId = 1,
+                            Version = 1
                         },
                         new
                         {
@@ -195,10 +224,12 @@ namespace ProyectoIA.Infrastructure.Migrations
                             FechaAsignacion = new DateTime(2026, 9, 2, 11, 0, 0, 0, DateTimeKind.Unspecified),
                             FechaCambioEstado = new DateTime(2026, 9, 2, 10, 30, 0, 0, DateTimeKind.Unspecified),
                             Objetivo = "Flujo de aprobación de compras",
+                            Prioridad = 3,
                             ReferenciaIngreso = "MEMO-002",
                             SolicitanteId = 3,
                             TecnicoAsignadoId = 2,
-                            TipoSolicitudId = 2
+                            TipoSolicitudId = 2,
+                            Version = 1
                         });
                 });
 
@@ -239,6 +270,9 @@ namespace ProyectoIA.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("Activo")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -251,16 +285,19 @@ namespace ProyectoIA.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
+                            Activo = true,
                             Nombre = "RPA"
                         },
                         new
                         {
                             Id = 2,
+                            Activo = true,
                             Nombre = "BPM"
                         },
                         new
                         {
                             Id = 3,
+                            Activo = true,
                             Nombre = "Power Platform"
                         });
                 });
@@ -269,6 +306,9 @@ namespace ProyectoIA.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Activo")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Correo")
@@ -297,25 +337,28 @@ namespace ProyectoIA.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
+                            Activo = true,
                             Correo = "admin@proyectoia.com",
                             Nombre = "Administrador",
-                            PasswordHash = "3EB3FE66B31E3B4D10FA70B5CAD49C7112294AF6AE4E476A1C405155D45AA121",
+                            PasswordHash = "pbkdf2-sha256$210000$cHJveWVjdG9pYS1zZWVkLWFkbWluLTIwMjY=$CU1bAqYrRU5XBNjPU5HIn9xwudtVyCE84HEzRZWOm6Y=",
                             Rol = 3
                         },
                         new
                         {
                             Id = 2,
+                            Activo = true,
                             Correo = "tecnico@proyectoia.com",
                             Nombre = "Técnico",
-                            PasswordHash = "91C8C18A270E60459C62B1491F4314923E660E8B2030A33BD7F135BBDE990C30",
+                            PasswordHash = "pbkdf2-sha256$210000$cHJveWVjdG9pYS1zZWVkLXRlY25pY28tMjAyNg==$d4Pe+2qkPs1VGvS90MVxG/VLxAKKfjJT4MCKFX+0iSc=",
                             Rol = 2
                         },
                         new
                         {
                             Id = 3,
+                            Activo = true,
                             Correo = "cliente@proyectoia.com",
                             Nombre = "Cliente",
-                            PasswordHash = "519F24A823B10612516C33F438F12967A179AB77D6E7D2AF68F3B9F2631345A7",
+                            PasswordHash = "pbkdf2-sha256$210000$cHJveWVjdG9pYS1zZWVkLWNsaWVudGUtMjAyNg==$h9IAWGSVDxRotF/qFgyhtvg0+b6mKtqS2cIpvDxLWAY=",
                             Rol = 1
                         });
                 });
@@ -337,6 +380,17 @@ namespace ProyectoIA.Infrastructure.Migrations
                     b.Navigation("Autor");
 
                     b.Navigation("Gestion");
+                });
+
+            modelBuilder.Entity("ProyectoIA.Domain.Dependencia", b =>
+                {
+                    b.HasOne("ProyectoIA.Domain.Ceco", "Ceco")
+                        .WithMany()
+                        .HasForeignKey("CecoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Ceco");
                 });
 
             modelBuilder.Entity("ProyectoIA.Domain.Gestion", b =>

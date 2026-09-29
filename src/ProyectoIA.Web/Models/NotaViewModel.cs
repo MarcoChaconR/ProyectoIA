@@ -9,5 +9,5 @@ public class NotaViewModel
     public string Texto { get; set; } = string.Empty;
 
     [Display(Name = "Nota pública (visible para el cliente)")]
-    public bool EsPublica { get; set; } = true;
+    public bool EsPublica { get; set; }
 }

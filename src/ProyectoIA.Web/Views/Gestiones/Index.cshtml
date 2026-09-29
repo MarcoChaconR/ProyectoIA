@@ -4,61 +4,135 @@
     ViewData["Title"] = "Gestiones";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Gestiones</h1>
+<div class="page-header">
+    <h1 class="mb-0">Gestiones</h1>
     @if (User.IsInRole(nameof(Rol.Cliente)))
     {
-        <a id="btn-crear-gestion" class="btn btn-primary" asp-action="Create">Crear gestión</a>
+        <a id="btn-crear-gestion" class="btn btn-primary" asp-action="Create">
+            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Crear gestión
+        </a>
     }
 </div>
 
-<form method="get" asp-action="Index" class="row g-2 align-items-end mb-4">
-    <div class="col-auto">
-        <label class="form-label" for="estado">Filtrar por estado</label>
-        <select id="estado" name="estado" class="form-select" onchange="this.form.submit()">
-            <option value="">Todos</option>
-            @foreach (var valor in Enum.GetValues<EstadoGestion>())
+<div class="card mb-4">
+    <div class="card-body">
+        <form id="form-filtros-gestiones" method="get" asp-action="Index" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label" for="estado">Estado</label>
+                <select id="estado" name="estado" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var valor in Enum.GetValues<EstadoGestion>())
+                    {
+                        var seleccionado = Model.EstadoFiltro.HasValue && Model.EstadoFiltro.Value == valor;
+                        <option value="@((int)valor)" selected="@seleccionado">@valor</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="cecoId">CECO</label>
+                <select id="cecoId" name="cecoId" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var ceco in Model.Cecos)
+                    {
+                        <option value="@ceco.Id" selected="@(Model.CecoFiltro == ceco.Id)">@ceco.Codigo - @ceco.Nombre</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="dependenciaId">Dependencia</label>
+                <select id="dependenciaId" name="dependenciaId" class="form-select">
+                    <option value="">Todas</option>
+                    @foreach (var dependencia in Model.Dependencias)
+                    {
+                        <option value="@dependencia.Id" selected="@(Model.DependenciaFiltro == dependencia.Id)">@dependencia.Nombre</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="tipoSolicitudId">Tipo</label>
+                <select id="tipoSolicitudId" name="tipoSolicitudId" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var tipo in Model.TiposSolicitud)
+                    {
+                        <option value="@tipo.Id" selected="@(Model.TipoSolicitudFiltro == tipo.Id)">@tipo.Nombre</option>
+                    }
+                </select>
+            </div>
+            @if (User.IsInRole(nameof(Rol.Administrador)))
             {
-                var seleccionado = Model.EstadoFiltro.HasValue && Model.EstadoFiltro.Value == valor;
-                <option value="@((int)valor)" selected="@seleccionado">@valor</option>
+                <div class="col-md-2">
+                    <label class="form-label" for="tecnicoId">Técnico</label>
+                    <select id="tecnicoId" name="tecnicoId" class="form-select">
+                        <option value="">Todos</option>
+                        @foreach (var tecnico in Model.Tecnicos)
+                        {
+                            <option value="@tecnico.Id" selected="@(Model.TecnicoFiltro == tecnico.Id)">@tecnico.Nombre</option>
+                        }
+                    </select>
+                </div>
             }
-        </select>
+            <div class="col-md-2">
+                <label class="form-label" for="prioridad">Prioridad</label>
+                <select id="prioridad" name="prioridad" class="form-select">
+                    <option value="">Todas</option>
+                    @foreach (var valor in Enum.GetValues<PrioridadGestion>())
+                    {
+                        <option value="@((int)valor)" selected="@(Model.PrioridadFiltro == valor)">@valor</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button id="btn-filtrar" type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel me-1" aria-hidden="true"></i>Filtrar
+                </button>
+                <a id="btn-limpiar-filtros" class="btn btn-outline-secondary" asp-action="Index">Limpiar</a>
+            </div>
+        </form>
     </div>
-</form>
+</div>
 
 @if (!Model.Gestiones.Any())
 {
-    <p>No hay gestiones para mostrar.</p>
+    <div class="estado-vacio">
+        <i class="bi bi-inbox" aria-hidden="true"></i>
+        <p class="mb-0">No hay gestiones para mostrar con los filtros seleccionados.</p>
+    </div>
 }
 else
 {
-    <table id="tabla-gestiones" class="table table-striped">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Fecha</th>
-                <th>Objetivo</th>
-                <th>Estado</th>
-                <th>Solicitante</th>
-                <th>Técnico</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var gestion in Model.Gestiones)
-            {
+    <div class="table-responsive">
+        <table id="tabla-gestiones" class="table table-striped align-middle">
+            <thead>
                 <tr>
-                    <td>@gestion.Id</td>
-                    <td>@gestion.Fecha.ToString("dd/MM/yyyy")</td>
-                    <td>@gestion.Objetivo</td>
-                    <td>@gestion.Estado</td>
-                    <td>@gestion.Solicitante?.Nombre</td>
-                    <td>@(gestion.TecnicoAsignado?.Nombre ?? "Sin asignar")</td>
-                    <td>
-                        <a id="ver-detalle-@gestion.Id" class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@gestion.Id">Ver detalle</a>
-                    </td>
+                    <th>#</th>
+                    <th>Fecha</th>
+                    <th>Objetivo</th>
+                    <th>Estado</th>
+                    <th>Prioridad</th>
+                    <th>CECO</th>
+                    <th>Solicitante</th>
+                    <th>Técnico</th>
+                    <th><span class="visually-hidden">Acciones</span></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var gestion in Model.Gestiones)
+                {
+                    <tr>
+                        <td>@gestion.Id</td>
+                        <td>@gestion.Fecha.ToString("dd/MM/yyyy")</td>
+                        <td>@gestion.Objetivo</td>
+                        <td><span class="badge @BadgeHelper.Clase(gestion.Estado)">@gestion.Estado</span></td>
+                        <td><span class="badge @BadgeHelper.Clase(gestion.Prioridad)">@gestion.Prioridad</span></td>
+                        <td>@gestion.Ceco?.Codigo</td>
+                        <td>@gestion.Solicitante?.Nombre</td>
+                        <td>@(gestion.TecnicoAsignado?.Nombre ?? "Sin asignar")</td>
+                        <td>
+                            <a id="ver-detalle-@gestion.Id" class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@gestion.Id">Ver detalle</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }

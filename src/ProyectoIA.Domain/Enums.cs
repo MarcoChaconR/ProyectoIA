@@ -18,3 +18,10 @@ public enum EstadoGestion
     Resuelta = 4,
     Cerrada = 5
 }
+
+public enum PrioridadGestion
+{
+    Baja = 1,
+    Media = 2,
+    Alta = 3
+}

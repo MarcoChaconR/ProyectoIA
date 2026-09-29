@@ -6,14 +6,15 @@
 const path = require('path');
 const { defineConfig, devices } = require('@playwright/test');
 
-const PORT = 5212;
+const PORT = process.env.E2E_PORT || 5212;
 const BASE_URL = `http://localhost:${PORT}`;
 const WEB_PROJECT = path.join(__dirname, '..', '..', 'src', 'ProyectoIA.Web');
+const TEST_DATABASE = path.join(__dirname, 'app.e2e.db');
+const PREPARE_DATABASE = path.join(__dirname, 'prepareDatabase.js');
 
 module.exports = defineConfig({
   testDir: '.',
   testIgnore: '**/professor_*',
-  globalSetup: require.resolve('./globalSetup.js'),
   fullyParallel: false,
   workers: 1,
   reporter: 'list',
@@ -25,9 +26,12 @@ module.exports = defineConfig({
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
   webServer: {
-    command: `dotnet run --project "${WEB_PROJECT}" --urls ${BASE_URL}`,
+    command: `node "${PREPARE_DATABASE}" && dotnet run --project "${WEB_PROJECT}" --urls ${BASE_URL}`,
     url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
+    env: {
+      ConnectionStrings__DefaultConnection: `Data Source=${TEST_DATABASE}`,
+    },
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });

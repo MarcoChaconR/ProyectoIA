@@ -1,0 +1,133 @@
+@{
+    ViewData["Title"] = "Mantenimiento de catálogos";
+    var cecos = (IEnumerable<Ceco>)ViewBag.Cecos;
+    var dependencias = (IEnumerable<Dependencia>)ViewBag.Dependencias;
+    var tipos = (IEnumerable<TipoSolicitud>)ViewBag.TiposSolicitud;
+}
+
+<h1 class="mb-4">Mantenimiento de catálogos</h1>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Centros de costo</span>
+        <a id="btn-nuevo-ceco" class="btn btn-primary btn-sm" asp-action="Ceco">
+            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Nuevo CECO
+        </a>
+    </div>
+    <div class="card-body">
+        @if (!cecos.Any())
+        {
+            <div class="estado-vacio py-3"><p class="mb-0">No hay centros de costo registrados.</p></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table id="tabla-cecos" class="table table-striped align-middle">
+                    <thead><tr><th>Código</th><th>Nombre</th><th>Estado</th><th><span class="visually-hidden">Acciones</span></th></tr></thead>
+                    <tbody>
+                    @foreach (var ceco in cecos)
+                    {
+                        <tr>
+                            <td>@ceco.Codigo</td>
+                            <td>@ceco.Nombre</td>
+                            <td><span class="badge @BadgeHelper.ClaseEstadoActivo(ceco.Activo)">@(ceco.Activo ? "Activo" : "Inactivo")</span></td>
+                            <td class="d-flex gap-2">
+                                <a id="editar-ceco-@ceco.Id" class="btn btn-sm btn-outline-primary" asp-action="Ceco" asp-route-id="@ceco.Id">Editar</a>
+                                @if (ceco.Activo)
+                                {
+                                    <form asp-action="DesactivarCeco" asp-route-id="@ceco.Id" method="post">
+                                        <button id="desactivar-ceco-@ceco.Id" class="btn btn-sm btn-outline-danger" type="submit">Desactivar</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Dependencias</span>
+        <a id="btn-nueva-dependencia" class="btn btn-primary btn-sm" asp-action="Dependencia">
+            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Nueva dependencia
+        </a>
+    </div>
+    <div class="card-body">
+        @if (!dependencias.Any())
+        {
+            <div class="estado-vacio py-3"><p class="mb-0">No hay dependencias registradas.</p></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table id="tabla-dependencias" class="table table-striped align-middle">
+                    <thead><tr><th>CECO</th><th>Dependencia</th><th>Estado</th><th><span class="visually-hidden">Acciones</span></th></tr></thead>
+                    <tbody>
+                    @foreach (var dependencia in dependencias)
+                    {
+                        <tr>
+                            <td>@dependencia.Ceco?.Codigo</td>
+                            <td>@dependencia.Nombre</td>
+                            <td><span class="badge @BadgeHelper.ClaseEstadoActivo(dependencia.Activa)">@(dependencia.Activa ? "Activa" : "Inactiva")</span></td>
+                            <td class="d-flex gap-2">
+                                <a id="editar-dependencia-@dependencia.Id" class="btn btn-sm btn-outline-primary" asp-action="Dependencia" asp-route-id="@dependencia.Id">Editar</a>
+                                @if (dependencia.Activa)
+                                {
+                                    <form asp-action="DesactivarDependencia" asp-route-id="@dependencia.Id" method="post">
+                                        <button id="desactivar-dependencia-@dependencia.Id" class="btn btn-sm btn-outline-danger" type="submit">Desactivar</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Tipos de solicitud</span>
+        <a id="btn-nuevo-tipo" class="btn btn-primary btn-sm" asp-action="TipoSolicitud">
+            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Nuevo tipo
+        </a>
+    </div>
+    <div class="card-body">
+        @if (!tipos.Any())
+        {
+            <div class="estado-vacio py-3"><p class="mb-0">No hay tipos de solicitud registrados.</p></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table id="tabla-tipos" class="table table-striped align-middle">
+                    <thead><tr><th>Nombre</th><th>Estado</th><th><span class="visually-hidden">Acciones</span></th></tr></thead>
+                    <tbody>
+                    @foreach (var tipo in tipos)
+                    {
+                        <tr>
+                            <td>@tipo.Nombre</td>
+                            <td><span class="badge @BadgeHelper.ClaseEstadoActivo(tipo.Activo)">@(tipo.Activo ? "Activo" : "Inactivo")</span></td>
+                            <td class="d-flex gap-2">
+                                <a id="editar-tipo-@tipo.Id" class="btn btn-sm btn-outline-primary" asp-action="TipoSolicitud" asp-route-id="@tipo.Id">Editar</a>
+                                @if (tipo.Activo)
+                                {
+                                    <form asp-action="DesactivarTipoSolicitud" asp-route-id="@tipo.Id" method="post">
+                                        <button id="desactivar-tipo-@tipo.Id" class="btn btn-sm btn-outline-danger" type="submit">Desactivar</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

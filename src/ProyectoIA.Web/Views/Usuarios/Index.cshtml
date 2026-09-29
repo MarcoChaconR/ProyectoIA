@@ -1,0 +1,47 @@
+@model IReadOnlyCollection<Usuario>
+@{
+    ViewData["Title"] = "Administración de usuarios";
+}
+
+<div class="page-header">
+    <h1 class="mb-0">Administración de usuarios</h1>
+    <a id="btn-nuevo-usuario" class="btn btn-primary" asp-action="Edit">
+        <i class="bi bi-person-plus me-1" aria-hidden="true"></i>Nuevo usuario
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="estado-vacio">
+        <i class="bi bi-people" aria-hidden="true"></i>
+        <p class="mb-0">No hay usuarios registrados.</p>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table id="tabla-usuarios" class="table table-striped align-middle">
+            <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th><span class="visually-hidden">Acciones</span></th></tr></thead>
+            <tbody>
+            @foreach (var usuario in Model)
+            {
+                <tr>
+                    <td>@usuario.Nombre</td>
+                    <td>@usuario.Correo</td>
+                    <td><span class="badge @BadgeHelper.Clase(usuario.Rol)">@usuario.Rol</span></td>
+                    <td><span class="badge @BadgeHelper.ClaseEstadoActivo(usuario.Activo)">@(usuario.Activo ? "Activo" : "Inactivo")</span></td>
+                    <td class="d-flex gap-2">
+                        <a id="editar-usuario-@usuario.Id" class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@usuario.Id">Editar</a>
+                        @if (usuario.Activo && usuario.Id.ToString() != User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                        {
+                            <form asp-action="Desactivar" asp-route-id="@usuario.Id" method="post">
+                                <button id="desactivar-usuario-@usuario.Id" type="submit" class="btn btn-sm btn-outline-danger">Desactivar</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

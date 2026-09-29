@@ -462,7 +462,7 @@ Este documento consolida la información inicialmente separada en:
 
 ## 19. Replan MVP Didáctico (para habilitar pruebas Playwright)
 
-Motivación: se requiere una versión funcional mínima navegable para ejecutar pruebas E2E con Playwright, antes de cerrar formalmente todas las ambigüedades de negocio (sección 13). Se toman **supuestos temporales** para desbloquear el desarrollo; no reemplazan las decisiones de negocio pendientes.
+Motivación original: se implementó una versión funcional mínima navegable para ejecutar pruebas E2E con Playwright antes de cerrar formalmente todas las ambigüedades de negocio (sección 13). El alcance se amplió posteriormente por la decisión D-018; las reglas confirmadas se registran en `decisions.md`.
 
 ### 19.1 Stack técnico simplificado
 
@@ -470,7 +470,7 @@ Motivación: se requiere una versión funcional mínima navegable para ejecutar 
 - EF Core + SQLite, con migraciones y datos sembrados (seed) para pruebas deterministas.
 - Autenticación por cookie simple con 3 usuarios sembrados (admin, tecnico, cliente), sin ASP.NET Identity completo.
 - Arquitectura pragmática de 3 proyectos: `ProyectoIA.Domain`, `ProyectoIA.Infrastructure`, `ProyectoIA.Web`.
-- Pruebas E2E: proyecto `ProyectoIA.E2ETests` con Microsoft.Playwright + NUnit.
+- Pruebas E2E activas: Playwright en Node.js/JavaScript (`tests/e2e`). El proyecto `ProyectoIA.E2ETests` con NUnit quedó sin uso.
 
 ### 19.2 Alcance funcional del MVP
 
@@ -499,3 +499,33 @@ Motivación: se requiere una versión funcional mínima navegable para ejecutar 
 - Las transiciones de estado siguen un único camino lineal (sin bifurcaciones ni reglas condicionales por rol/tipo).
 
 Estos supuestos deben confirmarse o ajustarse al cerrar las ambigüedades formales de la sección 13.
+
+### 19.5 Alcance ampliado y reglas confirmadas (28/09/2026)
+
+Se retomaron las fases de Administración, Dashboards y Calidad del plan original. La situación actual es:
+
+- Gestión: crear, consultar, filtrar por estado, CECO, dependencia, tipo, técnico y prioridad; editar por técnico asignado o administrador; auditar edición, asignación y cambios de estado; controlar concurrencia con versión optimista.
+- Administración: CRUD de usuarios y catálogos para administradores. Usuarios y catálogos se desactivan en lugar de borrarse para preservar referencias históricas.
+- Estructura organizacional: CECO con código numérico (almacenado como texto, por ejemplo `5550`); cada dependencia pertenece a un CECO.
+- Dashboards: indicadores operativos por técnico y globales para administrador, con conteos por estado, prioridad alta, pendientes de asignación, promedio de asignación y promedio de cierre.
+- Calidad: Playwright verifica los flujos por rol, privacidad de notas, restricciones de acceso, administración y conflicto de edición concurrente. La base E2E está aislada de `src/ProyectoIA.Web/app.db`.
+- Seguridad de contraseñas: PBKDF2-HMAC-SHA256 con salt aleatorio para nuevos hashes; los SHA256 existentes se aceptan temporalmente y se actualizan al autenticar correctamente (D-022).
+
+Reglas de negocio confirmadas: se conservan los cinco estados lineales y un técnico responsable; no hay anulación ni reapertura. La prioridad tiene valores Baja/Media/Alta y las nuevas gestiones comienzan en Media. Ver `decisions.md` D-018 a D-025.
+
+### 19.6 Verificación y salida a piloto
+
+```bash
+dotnet build src/ProyectoIA.slnx
+cd tests/e2e
+E2E_PORT=5213 npx playwright test
+```
+
+Usar otro puerto E2E si la aplicación de desarrollo ya escucha en 5212. Las pruebas recrean únicamente `tests/e2e/app.e2e.db`; no ejecutarlas contra la base versionada. Antes de actualizar o desplegar una base de datos, crear una copia consistente con la utilidad SQLite `.backup` y guardar el respaldo fuera del repositorio. La aprobación UAT, el procedimiento operativo de restauración y la configuración del entorno de despliegue deben completarse con el equipo antes del piloto.
+
+Checklist de salida:
+
+- [x] Compilación y suite E2E automatizada.
+- [x] Migraciones automáticas y procedimiento documentado de copia SQLite.
+- [ ] Aprobación UAT por usuarios de negocio.
+- [ ] Ensayo de restauración y configuración segura del entorno piloto (HTTPS, secretos y ruta de base).

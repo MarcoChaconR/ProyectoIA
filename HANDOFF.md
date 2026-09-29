@@ -1,138 +1,120 @@
-# HANDOFF — Continuación de desarrollo con otro modelo de IA
+# HANDOFF — Estado actual del desarrollo
 
-> Léeme primero. Este documento te ubica rápido para continuar el desarrollo
-> del MVP sin releer todo el historial de la sesión anterior.
+> Actualizado el 28/09/2026. Leer este archivo junto con `Documentación.md`,
+> `decisions.md` y `logs.md` antes de continuar.
 
-## 1. Qué es este proyecto
+## 1. Proyecto
 
-Sistema de Gestión de Solicitudes (RPA/BPM/Power Platform), con 3 roles
-(Cliente, Técnico, Administrador). El plan de negocio completo, historias de
-usuario, ambigüedades y supuestos están en **`Documentación.md`** (documento
-maestro). **Lee especialmente la sección 19 ("Replan MVP Didáctico")**: ahí se
-redujo el alcance original para poder tener una app navegable rápido y
-ejecutar pruebas E2E con Playwright, tomando supuestos temporales en vez de
-esperar a cerrar las 20 ambigüedades de negocio pendientes (sección 13).
+Sistema interno para centralizar solicitudes de RPA, BPM y Power Platform.
+Roles: Cliente, Técnico y Administrador. `Documentación.md` conserva el plan
+original, las historias de usuario y las ambigüedades todavía pendientes.
 
-No resuelvas las ambigüedades de negocio por tu cuenta salvo que se te pida
-explícitamente: los supuestos de la sección 19.4 ya destraban el desarrollo.
+## 2. Decisiones técnicas y de negocio vigentes
 
-## 2. Decisiones técnicas ya tomadas (no las re-discutas salvo pedido explícito)
+- **Stack:** .NET 10, ASP.NET Core MVC + Razor Views, EF Core y SQLite.
+- **Arquitectura:** tres proyectos (`ProyectoIA.Domain`,
+  `ProyectoIA.Infrastructure`, `ProyectoIA.Web`); no agregar una capa
+  `Application` sin una nueva decisión.
+- **Autenticación:** cookies y cuentas administrables, sin ASP.NET Identity.
+  Las nuevas contraseñas usan PBKDF2-HMAC-SHA256 con salt aleatorio; los SHA256
+  heredados se validan y se rehashean después de un login correcto.
+- **Estados:** cinco estados lineales: Registrada → Asignada → EnAtencion →
+  Resuelta → Cerrada. No hay anulación ni reapertura.
+- **Asignación:** un técnico responsable por gestión.
+- **Prioridad:** Baja, Media o Alta; el valor inicial es Media.
+- **CECO y dependencias:** código CECO numérico almacenado como texto (ej.
+  `5550`); cada dependencia pertenece a un CECO.
+- **Historial:** usuarios y catálogos se desactivan, no se borran físicamente.
+  La edición, asignación y transición de estado se registran en bitácora.
+- **Concurrencia:** `Gestion.Version` es token optimista; una edición obsoleta
+  devuelve un mensaje para recargar, no sobrescribe cambios.
+- **E2E:** Playwright JavaScript en `tests/e2e`; el antiguo proyecto
+  `tests/ProyectoIA.E2ETests` sigue sin uso.
 
-- **Arquitectura:** simple, 3 proyectos (`Domain`, `Infrastructure`, `Web`),
-  NO Clean Architecture completa con capa `Application` separada.
-- **Stack:** ASP.NET Core **MVC + Razor Views** (server-rendered, sin SPA) —
-  se eligió así porque es más estable para selectores de Playwright.
-- **Base de datos:** EF Core + **SQLite**.
-- **Auth:** cookie simple con 3 usuarios sembrados (admin/tecnico/cliente),
-  **sin ASP.NET Identity completo** (fue decisión explícita para simplificar).
-- **Pruebas E2E:** **Playwright en Node.js/JavaScript** (`@playwright/test`),
-  siguiendo la misma convención del ejemplo `Semana 5/SOFT734_T5_Playwright`
-  (`package.json` + `playwright.config.js` + `*.spec.js`). Se descartó el
-  binding .NET/NUnit para las pruebas E2E aunque el proyecto
-  `tests/ProyectoIA.E2ETests` (.NET/NUnit) quedó creado sin uso — no borrarlo
-  salvo que se pida, pero no desarrollar ahí.
-- **.NET SDK instalado:** 10.0.400 (`dotnet --version` para confirmar).
+## 3. Estado por fases
 
-## 3. Estructura actual del repo
+- **Fase 0 — Definición:** reglas críticas confirmadas en `decisions.md`
+  (D-018 a D-025). Duplicados, notificaciones, adjuntos y exportaciones no se
+  agregaron porque no forman parte del alcance implementado.
+- **Fase 1 — Fundaciones:** solución, entidades, SQLite, migraciones, seed,
+  autenticación y autorización por rol.
+- **Fase 2 — Gestión:** crear, consultar y filtrar; detalle, notas públicas e
+  internas; edición por técnico asignado/administrador; asignación; flujo de
+  estados; auditoría y concurrencia optimista.
+- **Fase 3 — Administración:** mantenimiento de CECOs, dependencias y tipos de
+  solicitud; gestión de usuarios y roles; desactivación lógica.
+- **Fase 4 — Dashboards:** vista global administrativa y vista del técnico con
+  conteos por estado, prioridades altas, pendientes de asignación y tiempos
+  promedio de asignación/cierre.
+- **Fase 5 — Calidad:** build limpio; 9 pruebas E2E pasan, incluyendo
+  autorización, privacidad de notas, edición concurrente y mantenimiento.
+  PBKDF2 y base E2E aislada implementados. Aún falta ejecutar UAT con negocio
+  y completar el procedimiento de restauración/despliegue del entorno piloto.
 
-```
+## 4. Estructura relevante
+
+```text
 src/
-  ProyectoIA.slnx                      # solución
-  ProyectoIA.Domain/                   # entidades (sin dependencias externas)
-    Enums.cs                           # Rol, EstadoGestion
-    Usuario.cs, Ceco.cs, Dependencia.cs, TipoSolicitud.cs
-    Gestion.cs, NotaGestion.cs, BitacoraCambio.cs
-    PasswordHasher.cs                  # hash SHA256 simple para login/seed
-  ProyectoIA.Infrastructure/           # EF Core
-    AppDbContext.cs                    # DbSets + relaciones FK + seed (HasData)
-    Migrations/                        # migración inicial (generada)
-  ProyectoIA.Web/                      # ASP.NET Core MVC
-    Program.cs                         # registra AppDbContext, auth cookie, Migrate() al inicio
-    appsettings.json                   # ConnectionStrings:DefaultConnection = app.db
-    Controllers/AccountController.cs   # Login/Logout/AccessDenied
-    Controllers/GestionesController.cs # Index/Create/Details/AgregarNota/CambiarEstado/AsignarTecnico
-    Models/                            # LoginViewModel, GestionCreateViewModel, GestionListViewModel, NotaViewModel
-    Views/Account/                     # Login.cshtml, AccessDenied.cshtml
-    Views/Gestiones/                   # Index.cshtml, Create.cshtml, Details.cshtml
-    Properties/launchSettings.json     # puerto: http://localhost:5212
-
+  ProyectoIA.Domain/          Entidades, enums y PasswordHasher
+  ProyectoIA.Infrastructure/  AppDbContext y migraciones EF Core
+  ProyectoIA.Web/
+    Controllers/              Gestiones, Account, Usuarios, Catalogos, Dashboard
+    Models/                   ViewModels validados
+    Views/                    Razor Views
+    app.db                    Base SQLite versionada
 tests/
-  ProyectoIA.E2ETests/                 # proyecto .NET/NUnit + Microsoft.Playwright.NUnit — CREADO PERO SIN USO
-  e2e/                                  # ← proyecto Playwright JS activo
-    package.json                       # @playwright/test
-    playwright.config.js               # webServer levanta "dotnet run" en :5212; workers=1, borra DB antes de correr
-    globalSetup.js                     # elimina app.db para pruebas deterministas
-    smoke.spec.js                      # prueba de humo (pasa)
-    flujo-gestiones.spec.js            # flujo E2E por rol (pasa)
-    README.md                          # explica la convención (estilo Semana 5)
-    node_modules/, test-results/       # generados, en .gitignore
-
-.gitignore                             # cubre bin/obj, node_modules, *.db, playwright artifacts
-Documentación.md                       # documento maestro (plan, historias, ambigüedades, sección 19 = replan MVP)
+  e2e/                        Playwright JS, specs y app.e2e.db aislada
+  ProyectoIA.E2ETests/        Proyecto legado NUnit, no activo
+Documentación.md              Plan maestro y estado del alcance
+decisions.md                  Decisiones técnicas y funcionales
+logs.md                       Incidencias conocidas y soluciones
+prompts.md                    Prompts usados para el proyecto
+HANDOFF.md                    Este resumen actualizado
 ```
 
-## 4. Estado del desarrollo (usar la tabla `todos` de la sesión si está disponible)
+## 5. Cuentas de demostración
 
-**Hecho (MVP navegable completo):**
-1. Documentación actualizada con el replan MVP (sección 19).
-2. Solución .NET creada y referenciada correctamente (`Web` → `Infrastructure` +
-   `Domain`; `Infrastructure` → `Domain`).
-3. Entidades de dominio completas (ver sección 3 arriba).
-4. Proyecto Playwright JS (`tests/e2e`) funcionando.
-5. **EF Core + SQLite** — `AppDbContext` registrado en `Program.cs`, cadena de
-   conexión `Data Source=app.db` en `appsettings.json`, migración inicial
-   `Migrations/20260923022822_Initial` generada y aplicada automáticamente al
-   arrancar (`db.Database.Migrate()`).
-6. **Seed** — 3 usuarios (admin/tecnico/cliente), catálogos (2 Cecos, 2
-   Dependencias, 3 TiposSolicitud) y 2 gestiones de ejemplo, vía `HasData`.
-7. **auth-cookie** — login por cookie (`AccountController`), claims de rol,
-   `[Authorize(Roles = "...")]`, logout y AccessDenied.
-8. **flow-crear-gestion** — `Gestiones/Create` (rol Cliente), con catálogos en
-   dropdown y validación.
-9. **flow-listado** — `Gestiones/Index` con filtro por estado; visibilidad por
-   rol (cliente ve solo las suyas, técnico las asignadas, admin todas).
-10. **flow-detalle-notas** — `Gestiones/Details` + agregar nota pública/interna
-    (cliente solo ve públicas; nota interna oculta para cliente).
-11. **flow-estado-asignacion** — avance de estado lineal
-    (Registrada→Asignada→EnAtencion→Resuelta→Cerrada) por técnico/admin y
-    asignación de técnico por admin; bitácora registrada.
-12. **build-run-verify** — `dotnet build` limpio y app responde en `:5212`.
-13. **playwright specs** — `flujo-gestiones.spec.js` (5 tests, todos en verde).
-
-**Credenciales de prueba:**
 - Cliente: `cliente@proyectoia.com` / `Cliente123!`
 - Técnico: `tecnico@proyectoia.com` / `Tecnico123!`
 - Administrador: `admin@proyectoia.com` / `Admin123!`
 
-**Nota para futuras sesiones:** el MVP didáctico está completo y funcional. Lo
-que sigue depende de cerrar ambigüedades (sección 13 de `Documentación.md`):
-anulación/reapertura, política de duplicados, edición de gestiones, catálogos
-administrables por UI, dashboards, etc. No avanzar en eso sin pedirlo.
+## 6. Verificación
 
-## 5. Cómo verificar que todo sigue funcionando
+Desde la raíz:
 
 ```bash
-# Backend
-cd src
-dotnet build                      # debe compilar sin errores
-
-# Levantar la web app manualmente (opcional, Playwright ya la levanta sola)
-dotnet run --project ProyectoIA.Web --urls http://localhost:5212
-
-# Pruebas E2E (recomendado: dejar que Playwright levante el server)
-cd ../tests/e2e
-npx playwright test               # smoke.spec.js debe seguir en verde
+dotnet build src/ProyectoIA.slnx
+cd tests/e2e
+E2E_PORT=5213 npx playwright test
 ```
 
-## 6. Reglas de trabajo a respetar
+La aplicación normal usa `http://localhost:5212`. Las pruebas no reutilizan
+servidores ya activos; si 5212 está ocupado, usar otro puerto con `E2E_PORT`.
+El servidor E2E se inicia con `ConnectionStrings__DefaultConnection` apuntando
+a `tests/e2e/app.e2e.db`. `prepareDatabase.js` elimina únicamente esa base y
+sus archivos auxiliares antes de iniciar el servidor.
 
-- No resolver ambigüedades de negocio (sección 13 de `Documentación.md`) sin
-  preguntar al usuario — solo aplican los supuestos ya documentados en 19.4.
-- No migrar las pruebas E2E de vuelta a .NET/NUnit sin que el usuario lo pida.
-- No agregar dashboards, CRUD admin de usuarios/cecos, detección de
-  duplicados, notificaciones ni exportes — están explícitamente fuera de
-  alcance del MVP (sección 19.3).
-- Mantener selectores de Playwright por `id` para que las pruebas no se
-  rompan con cambios de texto en la UI.
-- Actualizar este archivo (`HANDOFF.md`) y la sección 19 de
-  `Documentación.md` si cambia el alcance o las decisiones técnicas.
+## 7. Seguridad y cuidado de datos
+
+- `src/ProyectoIA.Web/app.db` está versionada. No ejecutar pruebas contra ella,
+  no borrarla y revisar cualquier diff de base antes de versionarlo.
+- La aplicación llama `Database.Migrate()` al inicio. Hacer una copia SQLite
+  consistente fuera del repositorio antes de actualizar/desplegar una base:
+
+  ```bash
+  sqlite3 src/ProyectoIA.Web/app.db ".backup '/ruta-segura/proyectoia-$(date +%Y%m%d-%H%M%S).db'"
+  ```
+
+- Para restaurar, detener la aplicación y restaurar una copia verificada; no
+  sobrescribir la base activa mientras haya conexiones abiertas.
+- La configuración y las contraseñas sembradas son didácticas. Revisar
+  secretos, HTTPS, políticas operativas, respaldos y UAT antes de producción.
+- Mantener selectores E2E por `id`.
+
+## 8. Documentación y continuación
+
+Actualizar `HANDOFF.md`, `decisions.md`, `prompts.md` y `logs.md` cuando cambie
+el estado, se tome una decisión o se resuelva una incidencia. Actualizar
+`Documentación.md` si cambia el alcance o una regla de negocio. No resolver
+las ambigüedades de la sección 13 por cuenta propia; pedir confirmación antes
+de implementar políticas nuevas.

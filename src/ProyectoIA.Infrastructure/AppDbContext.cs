@@ -21,11 +21,25 @@ public class AppDbContext : DbContext
             .HasIndex(u => u.Correo)
             .IsUnique();
 
+        modelBuilder.Entity<Ceco>()
+            .HasIndex(c => c.Codigo)
+            .IsUnique();
+
+        modelBuilder.Entity<Dependencia>()
+            .HasOne(d => d.Ceco)
+            .WithMany()
+            .HasForeignKey(d => d.CecoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<Gestion>()
             .HasOne(g => g.Solicitante)
             .WithMany(u => u.GestionesSolicitadas)
             .HasForeignKey(g => g.SolicitanteId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Gestion>()
+            .Property(g => g.Version)
+            .IsConcurrencyToken();
 
         modelBuilder.Entity<Gestion>()
             .HasOne(g => g.TecnicoAsignado)
@@ -74,7 +88,7 @@ public class AppDbContext : DbContext
                 Id = 1,
                 Nombre = "Administrador",
                 Correo = "admin@proyectoia.com",
-                PasswordHash = PasswordHasher.Hash("Admin123!"),
+                PasswordHash = PasswordHasher.HashForSeed("Admin123!", "proyectoia-seed-admin-2026"),
                 Rol = Rol.Administrador
             },
             new Usuario
@@ -82,7 +96,7 @@ public class AppDbContext : DbContext
                 Id = 2,
                 Nombre = "Técnico",
                 Correo = "tecnico@proyectoia.com",
-                PasswordHash = PasswordHasher.Hash("Tecnico123!"),
+                PasswordHash = PasswordHasher.HashForSeed("Tecnico123!", "proyectoia-seed-tecnico-2026"),
                 Rol = Rol.Tecnico
             },
             new Usuario
@@ -90,17 +104,17 @@ public class AppDbContext : DbContext
                 Id = 3,
                 Nombre = "Cliente",
                 Correo = "cliente@proyectoia.com",
-                PasswordHash = PasswordHasher.Hash("Cliente123!"),
+                PasswordHash = PasswordHasher.HashForSeed("Cliente123!", "proyectoia-seed-cliente-2026"),
                 Rol = Rol.Cliente
             });
 
         modelBuilder.Entity<Ceco>().HasData(
-            new Ceco { Id = 1, Codigo = "CECO-001", Nombre = "Centro de Costo Principal" },
-            new Ceco { Id = 2, Codigo = "CECO-002", Nombre = "Centro de Costo Secundario" });
+            new Ceco { Id = 1, Codigo = "5550", Nombre = "Desarrollo de software" },
+            new Ceco { Id = 2, Codigo = "5551", Nombre = "Centro de Costo Secundario" });
 
         modelBuilder.Entity<Dependencia>().HasData(
-            new Dependencia { Id = 1, Nombre = "Operaciones" },
-            new Dependencia { Id = 2, Nombre = "Finanzas" });
+            new Dependencia { Id = 1, Nombre = "Operaciones", CecoId = 1 },
+            new Dependencia { Id = 2, Nombre = "Finanzas", CecoId = 2 });
 
         modelBuilder.Entity<TipoSolicitud>().HasData(
             new TipoSolicitud { Id = 1, Nombre = "RPA" },
@@ -119,6 +133,7 @@ public class AppDbContext : DbContext
                 Detalle = "Automatizar el proceso mensual de conciliación para reducir el trabajo manual.",
                 ReferenciaIngreso = "MEMO-001",
                 Estado = EstadoGestion.Registrada,
+                Prioridad = PrioridadGestion.Media,
                 FechaCambioEstado = new DateTime(2026, 9, 1, 9, 0, 0),
                 SolicitanteId = 3
             },
@@ -133,6 +148,7 @@ public class AppDbContext : DbContext
                 Detalle = "Digitalizar el flujo de aprobación de órdenes de compra.",
                 ReferenciaIngreso = "MEMO-002",
                 Estado = EstadoGestion.Asignada,
+                Prioridad = PrioridadGestion.Alta,
                 FechaCambioEstado = new DateTime(2026, 9, 2, 10, 30, 0),
                 SolicitanteId = 3,
                 TecnicoAsignadoId = 2,

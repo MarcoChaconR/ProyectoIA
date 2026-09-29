@@ -1,3 +1,52 @@
+/* ==========================================================================
+   Design tokens de ProyectoIA.Web
+   Acento de marca: indigo (#4a55a2), derivado con sus variantes hover/alt/dark.
+   Bootstrap 5 se personaliza sobrescribiendo sus variables --bs-*, sin !important.
+   ========================================================================== */
+:root {
+  --pia-accent: #4a55a2;
+  --pia-accent-hover: #5460b4;
+  --pia-accent-alt: #465093;
+  --pia-accent-dark: #3a427e;
+  --pia-accent-subtle: #eef0f8;
+
+  --bs-primary: var(--pia-accent);
+  --bs-primary-rgb: 74, 85, 162;
+  --bs-link-color: var(--pia-accent);
+  --bs-link-color-rgb: var(--bs-primary-rgb);
+  --bs-link-hover-color: var(--pia-accent-dark);
+  --bs-border-radius: 0.5rem;
+  --bs-border-radius-sm: 0.35rem;
+  --bs-border-radius-lg: 0.75rem;
+
+  /* Escala de espaciado (1 sola escala; espacio interno < externo) */
+  --pia-space-1: 0.25rem;
+  --pia-space-2: 0.5rem;
+  --pia-space-3: 1rem;
+  --pia-space-4: 1.5rem;
+  --pia-space-5: 2.5rem;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--pia-accent);
+  --bs-btn-border-color: var(--pia-accent);
+  --bs-btn-hover-bg: var(--pia-accent-hover);
+  --bs-btn-hover-border-color: var(--pia-accent-hover);
+  --bs-btn-active-bg: var(--pia-accent-dark);
+  --bs-btn-active-border-color: var(--pia-accent-dark);
+  --bs-btn-disabled-bg: var(--pia-accent);
+  --bs-btn-disabled-border-color: var(--pia-accent);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--pia-accent);
+  --bs-btn-border-color: var(--pia-accent);
+  --bs-btn-hover-bg: var(--pia-accent);
+  --bs-btn-hover-border-color: var(--pia-accent);
+  --bs-btn-active-bg: var(--pia-accent-dark);
+  --bs-btn-active-border-color: var(--pia-accent-dark);
+}
+
 html {
   font-size: 14px;
 }
@@ -8,17 +57,115 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
-  margin-bottom: 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f7f7fa;
+  line-height: 1.55;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* Titulares con ritmo de lectura consistente (line-height ~1.2, tamanos en rem) */
+h1, .h1 {
+  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2rem);
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+h2, .h2 {
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+/* Medida de lectura legible para parrafos largos */
+.texto-lectura {
+  max-width: 65ch;
+}
+
+/* Foco: se reemplaza, nunca se elimina */
+.btn:focus-visible,
+.btn:active:focus-visible,
+.btn-link.nav-link:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+.form-check-input:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--pia-accent-dark);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem #fff, 0 0 0 0.25rem var(--pia-accent);
+}
+
+/* Navegacion */
+.navbar-brand {
+  font-weight: 600;
+}
+
+.navbar .nav-link.active {
+  font-weight: 600;
+  color: var(--pia-accent-dark) !important;
+}
+
+/* Tarjetas: sombra sutil, tono "moderno suave" */
+.card {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(20, 20, 43, 0.06);
+}
+
+.card-header {
+  background-color: var(--pia-accent-subtle);
+  font-weight: 600;
+}
+
+/* Encabezado de pagina reutilizable: titulo + accion principal */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pia-space-3);
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--pia-space-4);
+}
+
+/* Estado vacio consistente para listados sin datos */
+.estado-vacio {
+  text-align: center;
+  padding: var(--pia-space-5) var(--pia-space-3);
+  color: var(--bs-secondary-color);
+  border: 1px dashed rgba(0, 0, 0, 0.15);
+  border-radius: var(--bs-border-radius);
+  background-color: #fff;
+}
+
+.estado-vacio .bi {
+  font-size: 2rem;
+  color: var(--pia-accent);
+  margin-bottom: var(--pia-space-2);
+  display: inline-block;
+}
+
+/* Tablas: encabezados legibles, filas con objetivo tactil suficiente */
+.table > :not(caption) > * > * {
+  vertical-align: middle;
+}
+
+.table thead th {
+  font-weight: 600;
+  color: var(--bs-secondary-color);
+  border-bottom-width: 2px;
+}
+
+/* Login y paginas de una sola tarjeta centrada */
+.auth-card {
+  max-width: 26rem;
+  margin-inline: auto;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -28,4 +175,18 @@ body {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+
+footer.site-footer {
+  flex-shrink: 0;
+}
+
+/* Respetar la preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

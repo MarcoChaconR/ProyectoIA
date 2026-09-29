@@ -35,12 +35,18 @@ public class AccountController : Controller
             return View(model);
 
         var usuario = await _db.Usuarios
-            .FirstOrDefaultAsync(u => u.Correo == model.Correo);
+            .FirstOrDefaultAsync(u => u.Correo == model.Correo.Trim().ToLowerInvariant() && u.Activo);
 
         if (usuario is null || !PasswordHasher.Verify(model.Password, usuario.PasswordHash))
         {
             ModelState.AddModelError(string.Empty, "Correo o contraseña inválidos.");
             return View(model);
+        }
+
+        if (PasswordHasher.NeedsRehash(usuario.PasswordHash))
+        {
+            usuario.PasswordHash = PasswordHasher.Hash(model.Password);
+            await _db.SaveChangesAsync();
         }
 
         var claims = new List<Claim>

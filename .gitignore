@@ -13,6 +13,7 @@ tests/e2e/test-results/
 tests/e2e/playwright-report/
 tests/e2e/playwright/.cache/
 tests/e2e/capturas/*.png
+tests/e2e/app.e2e.db*
 
 # IDE
 .vs/

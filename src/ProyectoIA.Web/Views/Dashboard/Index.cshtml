@@ -1,0 +1,82 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h1 class="mb-4">Dashboard @(Model.EsAdministrador ? "global" : "del técnico")</h1>
+
+<div id="dashboard-metricas" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card h-100"><div class="card-body">
+            <h2 class="h6 text-secondary d-flex align-items-center gap-2"><i class="bi bi-collection" aria-hidden="true"></i>Gestiones totales</h2>
+            <p id="metric-total" class="display-6 mb-0 fw-semibold">@Model.TotalGestiones</p>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100"><div class="card-body">
+            <h2 class="h6 text-secondary d-flex align-items-center gap-2"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Abiertas</h2>
+            <p id="metric-abiertas" class="display-6 mb-0 fw-semibold">@Model.GestionesAbiertas</p>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100"><div class="card-body">
+            <h2 class="h6 text-secondary d-flex align-items-center gap-2"><i class="bi bi-exclamation-triangle text-danger" aria-hidden="true"></i>Prioridad alta</h2>
+            <p id="metric-prioridad-alta" class="display-6 mb-0 fw-semibold">@Model.GestionesAltaPrioridad</p>
+        </div></div>
+    </div>
+    @if (Model.EsAdministrador)
+    {
+        <div class="col-md-3">
+            <div class="card h-100"><div class="card-body">
+                <h2 class="h6 text-secondary d-flex align-items-center gap-2"><i class="bi bi-person-dash" aria-hidden="true"></i>Sin asignar</h2>
+                <p id="metric-sin-asignar" class="display-6 mb-0 fw-semibold">@Model.GestionesSinAsignar</p>
+            </div></div>
+        </div>
+    }
+</div>
+
+<div class="row g-4">
+    <section class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Gestiones por estado</div>
+            <div class="card-body">
+                @if (!Model.Estados.Any())
+                {
+                    <div class="estado-vacio py-4">
+                        <i class="bi bi-bar-chart" aria-hidden="true"></i>
+                        <p class="mb-0">Todavía no hay gestiones registradas.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table id="tabla-estados" class="table">
+                            <thead><tr><th>Estado</th><th>Cantidad</th></tr></thead>
+                            <tbody>
+                            @foreach (var estado in Model.Estados)
+                            {
+                                <tr><td><span class="badge @BadgeHelper.Clase(estado.Estado)">@estado.Estado</span></td><td>@estado.Cantidad</td></tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+    <section class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Tiempos de atención</div>
+            <div class="card-body">
+                <p>Promedio hasta asignación:
+                    <strong id="metric-promedio-asignacion">@(Model.HorasPromedioAsignacion?.ToString("N1") ?? "Sin datos")</strong>
+                    @if (Model.HorasPromedioAsignacion.HasValue) { <span>horas</span> }
+                </p>
+                <p class="mb-0">Promedio hasta cierre:
+                    <strong id="metric-promedio-cierre">@(Model.DiasPromedioCierre?.ToString("N1") ?? "Sin datos")</strong>
+                    @if (Model.DiasPromedioCierre.HasValue) { <span>días</span> }
+                </p>
+            </div>
+        </div>
+    </section>
+</div>

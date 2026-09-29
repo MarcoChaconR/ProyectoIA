@@ -4,38 +4,45 @@
     var returnUrl = (string?)ViewData["ReturnUrl"];
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <h1 class="mb-4">Iniciar sesión</h1>
-
-        <form id="login-form" asp-action="Login" asp-controller="Account" method="post">
-            <input type="hidden" name="returnUrl" value="@returnUrl" />
-
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="mb-3">
-                <label asp-for="Correo" class="form-label"></label>
-                <input id="correo" asp-for="Correo" class="form-control" autocomplete="username" />
-                <span asp-validation-for="Correo" class="text-danger"></span>
+<div class="auth-card py-3 py-lg-4">
+    <div class="card">
+        <div class="card-body p-4">
+            <div class="text-center mb-4">
+                <i class="bi bi-shield-lock text-primary fs-1" aria-hidden="true"></i>
+                <h1 class="h3 mt-2 mb-0">Iniciar sesión</h1>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Password" class="form-label"></label>
-                <input id="password" asp-for="Password" class="form-control" autocomplete="current-password" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
+            <form id="login-form" asp-action="Login" asp-controller="Account" method="post">
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
 
-            <button id="btn-login" type="submit" class="btn btn-primary w-100">Entrar</button>
-        </form>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
 
-        <div class="mt-4 small text-muted">
-            <p class="mb-1"><strong>Usuarios de prueba:</strong></p>
-            <ul class="list-unstyled">
-                <li>Cliente: cliente@proyectoia.com / Cliente123!</li>
-                <li>Técnico: tecnico@proyectoia.com / Tecnico123!</li>
-                <li>Administrador: admin@proyectoia.com / Admin123!</li>
-            </ul>
+                <div class="mb-3">
+                    <label asp-for="Correo" class="form-label"></label>
+                    <input id="correo" asp-for="Correo" class="form-control" autocomplete="username" />
+                    <span asp-validation-for="Correo" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input id="password" asp-for="Password" class="form-control" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <button id="btn-login" type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Entrar
+                </button>
+            </form>
         </div>
+    </div>
+
+    <div class="mt-3 small text-muted">
+        <p class="mb-1"><strong>Usuarios de prueba:</strong></p>
+        <ul class="list-unstyled mb-0">
+            <li>Cliente: cliente@proyectoia.com / Cliente123!</li>
+            <li>Técnico: tecnico@proyectoia.com / Tecnico123!</li>
+            <li>Administrador: admin@proyectoia.com / Admin123!</li>
+        </ul>
     </div>
 </div>
 

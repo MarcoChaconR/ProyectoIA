@@ -1,0 +1,26 @@
+@model CecoFormViewModel
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Nuevo CECO" : "Editar CECO";
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+<div class="card">
+    <div class="card-body">
+        <form id="form-ceco" asp-action="GuardarCeco" method="post">
+            <input asp-for="Id" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+            <div class="mb-3">
+                <label asp-for="Codigo" class="form-label"></label>
+                <input id="codigo-ceco" asp-for="Codigo" class="form-control" inputmode="numeric" />
+                <span asp-validation-for="Codigo" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Nombre" class="form-label"></label>
+                <input id="nombre-ceco" asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <button id="btn-guardar-ceco" type="submit" class="btn btn-primary">Guardar</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Cancelar</a>
+        </form>
+    </div>
+</div>

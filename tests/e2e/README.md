@@ -8,7 +8,7 @@ Este proyecto sigue la misma convención del ejemplo de Semana 5
 estático (`index.html` vía `file://`, sin servidor). Aquí la app es un
 servidor real (ASP.NET Core + SQLite), así que `playwright.config.js` usa la
 opción `webServer` para levantar `dotnet run` automáticamente antes de correr
-las pruebas (y reutiliza el servidor si ya está corriendo en local).
+las pruebas y siempre usa una base E2E aislada.
 
 ## Qué hay en esta carpeta
 
@@ -16,14 +16,13 @@ las pruebas (y reutiliza el servidor si ya está corriendo en local).
 |---|---|
 | `smoke.spec.js` | Prueba de humo: confirma que el servidor responde. |
 | `flujo-gestiones.spec.js` | Flujo E2E por rol: login, crear gestión, listado, detalle/notas, cambio de estado y asignación de técnico. |
-| `globalSetup.js` | Borra `app.db` antes de cada corrida para pruebas deterministas (la app la recrea al arrancar). |
+| `prepareDatabase.js` | Borra solo `app.e2e.db` antes de levantar el servidor de pruebas. |
 | `playwright.config.js` | Config: Chromium, reporte de lista, `webServer` apuntando a `ProyectoIA.Web`, `workers: 1`. |
 | `package.json` | Dependencias (`@playwright/test`) y scripts (`test`, `codegen`). |
 | `capturas/` | Evidencia visual (screenshots) generada por las pruebas. |
 
-Las pruebas de flujo (login, crear gestión, listado, detalle/notas, cambio de
-estado) se agregan en archivos separados a medida que cada pantalla queda
-funcional en `ProyectoIA.Web`.
+Las pruebas usan `app.e2e.db`, aislada de la base `app.db` de desarrollo, que
+nunca se borra ni modifica desde el setup E2E.
 
 ## Correr las pruebas
 
@@ -35,6 +34,16 @@ npm install                        # instala @playwright/test
 npx playwright install chromium    # descarga el navegador una sola vez
 npx playwright test                # levanta la app (dotnet run) y corre las pruebas
 ```
+
+La app de desarrollo usa el puerto 5212. Si ya está levantada, correr las
+pruebas en otro puerto para no interrumpirla:
+
+```bash
+E2E_PORT=5213 npx playwright test
+```
+
+Las pruebas usan `app.e2e.db`, aislada de la base `app.db` de desarrollo, que
+nunca se borra ni modifica desde el setup E2E.
 
 ## Generar pruebas nuevas con codegen
 

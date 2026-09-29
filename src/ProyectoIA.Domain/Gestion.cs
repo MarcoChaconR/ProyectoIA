@@ -19,6 +19,8 @@ public class Gestion
     public string? ReferenciaIngreso { get; set; }
 
     public EstadoGestion Estado { get; set; } = EstadoGestion.Registrada;
+    public PrioridadGestion Prioridad { get; set; } = PrioridadGestion.Media;
+    public int Version { get; set; } = 1;
     public DateTime FechaCambioEstado { get; set; }
 
     public int SolicitanteId { get; set; }

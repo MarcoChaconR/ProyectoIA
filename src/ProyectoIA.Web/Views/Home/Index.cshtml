@@ -1,9 +1,15 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Sistema de Gestión de Solicitudes</h1>
-    <p>Centraliza solicitudes de RPA, BPM y Power Platform.</p>
-    <a id="btn-ir-gestiones" class="btn btn-primary" asp-controller="Gestiones" asp-action="Index">Ir a gestiones</a>
+<div class="text-center py-4 py-lg-5">
+    <i class="bi bi-diagram-3-fill display-4 text-primary" aria-hidden="true"></i>
+    <h1 class="mt-3">Sistema de Gestión de Solicitudes</h1>
+    <p class="texto-lectura mx-auto text-secondary">
+        Centraliza y da seguimiento a solicitudes de RPA, BPM y Power Platform,
+        desde el registro hasta el cierre.
+    </p>
+    <a id="btn-ir-gestiones" class="btn btn-primary btn-lg mt-2" asp-controller="Gestiones" asp-action="Index">
+        <i class="bi bi-list-task me-1" aria-hidden="true"></i>Ir a gestiones
+    </a>
 </div>

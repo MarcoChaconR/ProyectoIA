@@ -5,6 +5,7 @@
     var esCliente = ViewData["EsCliente"] as bool? ?? false;
     var puedeAvanzar = ViewData["PuedeAvanzarEstado"] as bool? ?? false;
     var esAdmin = ViewData["EsAdmin"] as bool? ?? false;
+    var puedeEditar = ViewData["PuedeEditar"] as bool? ?? false;
     var notas = esCliente
         ? Model.Notas.Where(n => n.EsPublica)
         : (IEnumerable<NotaGestion>)Model.Notas;
@@ -19,10 +20,13 @@
             <dd class="col-sm-9">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</dd>
 
             <dt class="col-sm-3">Estado</dt>
-            <dd class="col-sm-9"><span id="estado-actual">@Model.Estado</span></dd>
+            <dd class="col-sm-9"><span id="estado-actual" class="badge @BadgeHelper.Clase(Model.Estado)">@Model.Estado</span></dd>
+
+            <dt class="col-sm-3">Prioridad</dt>
+            <dd class="col-sm-9"><span class="badge @BadgeHelper.Clase(Model.Prioridad)">@Model.Prioridad</span></dd>
 
             <dt class="col-sm-3">Centro de costo</dt>
-            <dd class="col-sm-9">@Model.Ceco?.Nombre</dd>
+            <dd class="col-sm-9">@Model.Ceco?.Codigo - @Model.Ceco?.Nombre</dd>
 
             <dt class="col-sm-3">Dependencia</dt>
             <dd class="col-sm-9">@Model.Dependencia?.Nombre</dd>
@@ -61,7 +65,9 @@
             @if (puedeAvanzar)
             {
                 <form asp-action="CambiarEstado" asp-route-id="@Model.Id" method="post">
-                    <button id="btn-avanzar-estado" type="submit" class="btn btn-warning">Avanzar estado</button>
+                    <button id="btn-avanzar-estado" type="submit" class="btn btn-warning">
+                        <i class="bi bi-arrow-right-circle me-1" aria-hidden="true"></i>Avanzar estado
+                    </button>
                 </form>
             }
 
@@ -82,7 +88,7 @@
     <div class="card-body">
         @if (!notas.Any())
         {
-            <p>Sin notas.</p>
+            <p class="text-muted mb-3">Sin notas.</p>
         }
         else
         {
@@ -118,7 +124,9 @@
                 </div>
             }
 
-            <button id="btn-agregar-nota" type="submit" class="btn btn-primary">Agregar nota</button>
+            <button id="btn-agregar-nota" type="submit" class="btn btn-primary">
+                <i class="bi bi-send me-1" aria-hidden="true"></i>Agregar nota
+            </button>
         </form>
     </div>
 </div>
@@ -147,4 +155,12 @@
     </div>
 }
 
-<a class="btn btn-secondary" asp-action="Index">Volver al listado</a>
+<a class="btn btn-outline-secondary" asp-action="Index">
+    <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Volver al listado
+</a>
+@if (puedeEditar)
+{
+    <a id="btn-editar-gestion" class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@Model.Id">
+        <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar gestión
+    </a>
+}

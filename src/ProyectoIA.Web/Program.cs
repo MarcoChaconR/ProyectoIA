@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using ProyectoIA.Domain;
 using ProyectoIA.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +18,17 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Account/Login";
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(2);
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var userId = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var db = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+            if (!int.TryParse(userId, out var id) ||
+                !await db.Usuarios.AnyAsync(u => u.Id == id && u.Activo))
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+        };
     });
 
 var app = builder.Build();
